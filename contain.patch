@@ -27,7 +27,7 @@ index 44b5746..9cb7883 100644
  
              if (ngx_http_rewrite_value(cf, lcf, &value[last]) != NGX_CONF_OK) {
 diff --git a/src/http/ngx_http_script.c b/src/http/ngx_http_script.c
-index ef69155..04cb222 100644
+index ef69155..aa8d88e 100644
 --- a/src/http/ngx_http_script.c
 +++ b/src/http/ngx_http_script.c
 @@ -1441,6 +1441,34 @@ ngx_http_script_equal_code(ngx_http_script_engine_t *e)
@@ -47,8 +47,8 @@ index ef69155..04cb222 100644
 +
 +    e->ip += sizeof(uintptr_t);
 +
-+    if (val->len >= res->len
-+        && ngx_strlcasestrn(val->data, val->data + val->len, res->data, res->len) != NULL)
++    if ((res->len >= val->len) 
++        && (ngx_strlcasestrn(res->data, res->data + res->len - 1, val->data, val->len - 1) != NULL))
 +    {
 +        *res = ngx_http_variable_true_value;
 +        return;
