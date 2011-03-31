@@ -1,0 +1,11 @@
+This a patch for our private use.
+
+Check if the string contains substring with using the <> operators for the if directive.
+
+Example:
+
+if $str_variable <> $substr_variable {
+    do something;
+}
+
+
