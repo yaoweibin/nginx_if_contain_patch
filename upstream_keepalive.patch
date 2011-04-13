@@ -1,0 +1,46 @@
+diff --git a/src/http/ngx_http_upstream.c b/src/http/ngx_http_upstream.c
+index e8d8773..6f28b1e 100644
+--- a/src/http/ngx_http_upstream.c
++++ b/src/http/ngx_http_upstream.c
+@@ -1375,6 +1375,14 @@ ngx_http_upstream_send_request(ngx_http_request_t *r, ngx_http_upstream_t *u)
+         c->tcp_nopush = NGX_TCP_NOPUSH_UNSET;
+     }
+ 
++    u->write_event_handler = ngx_http_upstream_dummy_handler;
++
++    if (ngx_handle_write_event(c->write, 0) != NGX_OK) {
++        ngx_http_upstream_finalize_request(r, u,
++                                           NGX_HTTP_INTERNAL_SERVER_ERROR);
++        return;
++    }
++
+     ngx_add_timer(c->read, u->conf->read_timeout);
+ 
+ #if 1
+@@ -1393,14 +1401,6 @@ ngx_http_upstream_send_request(ngx_http_request_t *r, ngx_http_upstream_t *u)
+         return;
+     }
+ #endif
+-
+-    u->write_event_handler = ngx_http_upstream_dummy_handler;
+-
+-    if (ngx_handle_write_event(c->write, 0) != NGX_OK) {
+-        ngx_http_upstream_finalize_request(r, u,
+-                                           NGX_HTTP_INTERNAL_SERVER_ERROR);
+-        return;
+-    }
+ }
+ 
+ 
+@@ -1971,6 +1971,11 @@ ngx_http_upstream_process_body_in_memory(ngx_http_request_t *r,
+             return;
+         }
+ 
++        if (u->length == 0) {
++            ngx_http_upstream_finalize_request(r, u, 0);
++            return;
++        }
++
+         if (!rev->ready) {
+             break;
+         }
